@@ -8,10 +8,12 @@ import com.atguigu.bean.StartUpLog
 import com.atguigu.constants.GmallConstants
 import com.atguigu.handler.DauHanler
 import com.atguigu.utils.MyKafkaUtil
+import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.phoenix.spark._
 
 object DauApp {
   def main(args: Array[String]): Unit = {
@@ -55,11 +57,21 @@ object DauApp {
     filterByRedisDStream.count().print()
 
     //6.做批次内去重
+    val filterByGroupDStream: DStream[StartUpLog] = DauHanler.filterByGroup(filterByRedisDStream)
+
+    filterByGroupDStream.count().print()
 
     //7.将去重的结果写入redis中
-    DauHanler.saveToRedis(filterByRedisDStream)
+    DauHanler.saveToRedis(filterByGroupDStream)
 
     //8.将去重后的明细数据写入hbase
+    filterByGroupDStream.foreachRDD(rdd=>{
+      rdd.saveToPhoenix(
+      "GMALL0526_DAU",
+      Seq("MID", "UID", "APPID", "AREA", "OS", "CH", "TYPE", "VS", "LOGDATE", "LOGHOUR", "TS"),
+      HBaseConfiguration.create,
+      Some("hadoop102,hadoop103,hadoop104:2181"))
+    })
 
 
 //    //4.打印kafka中的数据

@@ -13,6 +13,29 @@ import redis.clients.jedis.Jedis
 
 object DauHanler {
   /**
+    * 批次内去重
+    * @param filterByRedisDStream
+    */
+  def filterByGroup(filterByRedisDStream: DStream[StartUpLog]) = {
+    //1.将数据转为KV的格式
+    val midWithLogDateToLogDStream: DStream[((String, String), StartUpLog)] = filterByRedisDStream.map(startUpLog => {
+      ((startUpLog.mid, startUpLog.logDate), startUpLog)
+    })
+
+    //2.将相同key的数据聚和到一块
+    val midWithLogDateToIterLogDStream: DStream[((String, String), Iterable[StartUpLog])] = midWithLogDateToLogDStream.groupByKey()
+
+    //3.对value按照时间戳进行排序,取出第一条
+    val midWithLogDateToListLogDStream: DStream[((String, String), List[StartUpLog])] = midWithLogDateToIterLogDStream.mapValues(iter => {
+      iter.toList.sortWith(_.ts < _.ts).take(1)
+    })
+
+    //4.将list集合中的数据打散并返回
+    val value: DStream[StartUpLog] = midWithLogDateToListLogDStream.flatMap(_._2)
+    value
+  }
+
+  /**
     * 批次间去重
     *
     * @param startUpLogDStream
