@@ -83,6 +83,5 @@ public class CanalClient {
                 MyKafkaSender.send(GmallConstants.KAFKA_TOPIC_ORDER, jsonObject.toString());
             }
         }
-
     }
 }
