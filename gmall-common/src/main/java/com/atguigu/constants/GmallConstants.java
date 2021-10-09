@@ -22,6 +22,8 @@ public class GmallConstants {
     //灵活分析ES索引前缀
     public static final String ES_SALE_DETAIL_IDNEX = "gmall2021_sale_detail";
 
+    //灵活分析索引别名
+    public static final String ES_SALE_DETAIL_QUERY = "gmall2021_sale_detail-query";
 
 
 
