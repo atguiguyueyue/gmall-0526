@@ -19,6 +19,9 @@ public class GmallConstants {
     //用户表主题
     public static final String KAFKA_TOPIC_USER = "TOPIC_USER_INFO";
 
+    //灵活分析ES索引前缀
+    public static final String ES_SALE_DETAIL_IDNEX = "gmall2021_sale_detail";
+
 
 
 

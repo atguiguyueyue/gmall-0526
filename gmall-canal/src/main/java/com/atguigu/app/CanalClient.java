@@ -90,11 +90,11 @@ public class CanalClient {
             }
             System.out.println(jsonObject.toString());
             //模拟网络震荡/网络延迟效果
-            try {
-                Thread.sleep(new Random().nextInt(5)*1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(new Random().nextInt(5)*1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
             //将数据发送至Kafka
             MyKafkaSender.send(kafkaTopicOrder, jsonObject.toString());
         }
